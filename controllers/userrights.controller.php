@@ -191,14 +191,13 @@ class ControllerUserRights {
         $lguOfficeName = trim($_POST['lguOfficeName'] ?? '');
         $lguOfficeEmail = trim($_POST['lguOfficeEmail'] ?? '');
         $lguOfficeNumber = trim($_POST['lguOfficeNumber'] ?? '');
-        $lguContactNumber = trim($_POST['lguContactNumber'] ?? '');
         $lguOfficeType = trim($_POST['lguOfficeType'] ?? '');
         $lguDepartment = trim($_POST['lguDepartment'] ?? '');
         $lguRegion = trim($_POST['lguRegion'] ?? '');
         $lguProvince = trim($_POST['lguProvince'] ?? '');
         $lguPosition = trim($_POST['lguPosition'] ?? '');
 
-        if (empty($lguOfficeName) || empty($lguOfficeEmail) || empty($lguOfficeNumber) || empty($lguContactNumber) || empty($lguOfficeType)
+        if (empty($lguOfficeName) || empty($lguOfficeEmail) || empty($lguOfficeNumber) || empty($lguOfficeType)
             || empty($lguDepartment) || empty($lguRegion) || empty($lguProvince) || empty($lguPosition)) {
             return 'Please fill in all required LGU fields.';
         }
@@ -236,7 +235,6 @@ class ControllerUserRights {
             'first_name' => $registrationData['firstName'],
             'last_name' => $registrationData['lastName'],
             'office_number' => $lguOfficeNumber,
-            'contact_number' => $lguContactNumber,
             'password' => $hashedPassword
         ];
 

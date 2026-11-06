@@ -18,7 +18,7 @@
       ?>
 
       <!-- Map - Always visible -->
-      <?php if (canAccessRoute('map', $currentUserPermissions)): ?>
+      <?php if ($isPublicUser || canAccessRoute('map', $currentUserPermissions)): ?>
       <li class="<?php echo $currentRoute === 'map' ? 'mm-active' : ''; ?>">
         <a class="ai-icon" href="?route=map" aria-expanded="false">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -37,7 +37,7 @@
         <!-- Protected menu items - Only for logged in users -->
         
         <!-- Dashboard (Home) -->
-        <?php if (canAccessRoute('home', $currentUserPermissions)): ?>
+        <?php if ($isPublicUser || canAccessRoute('home', $currentUserPermissions)): ?>
         <li class="<?php echo $currentRoute === 'home' ? 'mm-active' : ''; ?>">
           <a class="ai-icon" href="?route=home" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -52,7 +52,7 @@
         <?php endif; ?>
 
         <!-- Active Centers (This shows the list of centers with Add buttons) -->
-        <?php if (canAccessRoute('active', $currentUserPermissions)): ?>
+        <?php if (!$isPublicUser && canAccessRoute('active', $currentUserPermissions)): ?>
         <li class="<?php echo $currentRoute === 'active' ? 'mm-active' : ''; ?>">
           <a class="ai-icon" href="?route=active" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -66,7 +66,7 @@
         <?php endif; ?>
 
         <!-- Announcement -->
-        <?php if (canAccessRoute('announcement', $currentUserPermissions)): ?>
+        <?php if (!$isPublicUser && canAccessRoute('announcement', $currentUserPermissions)): ?>
         <li class="<?php echo $currentRoute === 'announcement' ? 'mm-active' : ''; ?>">
           <a class="ai-icon" href="?route=announcement" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
@@ -84,6 +84,7 @@
         <?php endif; ?>
 
         <!-- User Access (hidden if restricted) -->
+        <?php if (!$isPublicUser): ?>
         <?php
           $showUserAccess = true;
           if (isset($_SESSION['userid'])) {
@@ -106,8 +107,9 @@
           </a>
         </li>
         <?php endif; ?>
+        <?php endif; ?>
         <!-- Assigned Center -->
-        <?php if (canAccessRoute('assigned', $currentUserPermissions)): ?>
+        <?php if (!$isPublicUser && canAccessRoute('assigned', $currentUserPermissions)): ?>
         <li class="<?php echo $currentRoute === 'assigned' ? 'mm-active' : ''; ?>">
           <a class="ai-icon" href="?route=assigned" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-clipboard">

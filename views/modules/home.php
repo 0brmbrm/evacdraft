@@ -97,10 +97,7 @@ $isLGU = ($userType === 'lgu');
           </div>
         </div>
 
-        <?php if ($isLGU): ?>
-        <!-- LGU-ONLY CONTENT STARTS HERE -->
-        
-        <!-- Charts Row -->
+        <!-- Dashboard charts are available to both public and LGU users. -->
         <div class="row g-4 mb-4">
           <div class="col-xl-6">
             <div class="card shadow-sm">
@@ -124,6 +121,9 @@ $isLGU = ($userType === 'lgu');
             </div>
           </div>
         </div>
+
+        <?php if ($isLGU): ?>
+        <!-- LGU-ONLY CONTENT STARTS HERE -->
 
         <!-- Centers at a Glance -->
         <div class="row g-4 mb-4">
@@ -483,14 +483,12 @@ function fetchDashboardStats() {
                 $('#totalEvacuees').text(data.total_evacuees || 0);
                 $('#totalCapacity').text(data.total_capacity || 0);
                 
-                <?php if ($isLGU): ?>
                 if (data.occupancy_trend) {
                     updateOccupancyChart(data.occupancy_trend);
                 }
                 if (data.status_distribution) {
                     updateStatusChart(data.status_distribution);
                 }
-                <?php endif; ?>
             }
         },
         error: function(xhr, status, error) {
@@ -623,6 +621,8 @@ function displayRecentActivity(activities) {
     $('#recentActivityList').html(html);
 }
 
+<?php endif; ?>
+
 function updateOccupancyChart(trendData) {
     const ctx = document.getElementById('occupancyChart').getContext('2d');
     
@@ -703,7 +703,6 @@ function updateStatusChart(statusData) {
         }
     });
 }
-<?php endif; // End of LGU-only JavaScript functions ?>
 
 function formatDate(dateString) {
     if (!dateString) return 'N/A';

@@ -2,7 +2,18 @@
   session_start();
   ob_start();
   $isLoggedIn = isset($_SESSION["loggedIn"]) && $_SESSION["loggedIn"] == "ok";
+  $isPublicUser = strtolower($_SESSION['user_type'] ?? '') === 'public';
   $route = isset($_GET["route"]) ? basename($_GET["route"]) : "map";
+  if ($isLoggedIn && $isPublicUser && !in_array($route, ['home', 'map', 'logout', 'forgot-password'], true)) {
+    $route = 'home';
+  }
+  $currentUserPermissions = [];
+  if ($isLoggedIn && isset($_SESSION['userid'])) {
+    $currentUserPermissions = ModelUserRights::mdlGetPermissions($_SESSION['userid']);
+  }
+  $isPageViewOnly = $isLoggedIn
+    && isset($currentUserPermissions[$route])
+    && strtolower($currentUserPermissions[$route]) === 'view';
   $pageRoute = $route;
 ?>
 <!DOCTYPE html>
@@ -78,8 +89,13 @@
       <?php include "modules/navbar.php"; ?>
       <?php include "modules/sidebar.php"; ?>
       
-      <div class="content-body">
+      <div class="content-body"<?php echo $isPageViewOnly ? ' inert' : ''; ?>>
         <div class="container-fluid">
+          <?php if ($isPageViewOnly): ?>
+            <div class="alert alert-info mt-3 mb-0" role="status">
+              This section is view-only. You can use the menu to navigate to another section.
+            </div>
+          <?php endif; ?>
           <?php
             $allowedRoutes = ['home', 'map', 'logout', 'centers', 'evacuees', 'active', 'announcement', 'useraccess', 'assigned', 'forgot-password'];
             if(in_array($route, $allowedRoutes)){

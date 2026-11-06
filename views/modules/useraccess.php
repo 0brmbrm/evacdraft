@@ -1,6 +1,12 @@
 <?php
 // User Access management UI
 $users = ModelUserRights::mdlListUsers();
+$publicUsers = [];
+foreach ($users as $user) {
+    if (strtolower($user['Type'] ?? $user['type'] ?? '') === 'public') {
+        $publicUsers[] = $user;
+    }
+}
 $panels = ['home' => 'Dashboard', 'map' => 'Map', 'centers' => 'Centers', 'evacuees' => 'Evacuees', 'active' => 'Active Centers', 'announcement' => 'Announcement', 'useraccess' => 'User Access', 'assigned' => 'Assigned'];
 // permission levels
 $levels = ['full' => 'Full', 'view' => 'View', 'restricted' => 'Restricted'];
@@ -306,41 +312,29 @@ foreach ($centersWithLGU as $center) {
                     <tr>
                       <th>User</th>
                       <th>Email</th>
-                      <?php foreach ($panels as $key => $label): ?>
-                        <th><?php echo htmlspecialchars($label); ?></th>
-                      <?php endforeach; ?>
-                      <th>Save</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <?php foreach ($users as $u): ?>
-                      <?php if (strtolower($u['Type'] ?? $u['type'] ?? '') === 'lgu') continue; ?>
-                      <?php $perms = ModelUserRights::mdlGetPermissions($u['userid']); ?>
-                      <tr data-userid="<?php echo htmlspecialchars($u['userid']); ?>" data-type="public" data-name="<?php echo htmlspecialchars(trim($u['first_name'] . ' ' . $u['last_name'])); ?>" data-email="<?php echo htmlspecialchars($u['email']); ?>">
-                        <td><?php echo htmlspecialchars(($u['first_name'] ? $u['first_name'] . ' ' . $u['last_name'] : $u['userid'])); ?></td>
-                        <td><?php echo htmlspecialchars($u['email']); ?></td>
-                        <?php foreach ($panels as $key => $label): ?>
-                          <td style="min-width:140px;">
-                            <select class="form-select form-select-sm perm-select" data-panel="<?php echo htmlspecialchars($key); ?>"<?php echo $isUserAccessViewOnly ? ' disabled' : ''; ?> >
-                              <?php foreach ($levels as $lvKey => $lvLabel):
-                                $sel = (isset($perms[$key]) && strtolower($perms[$key]) === $lvKey) ? 'selected' : '';
-                              ?>
-                                <option value="<?php echo $lvKey; ?>" <?php echo $sel; ?>><?php echo $lvLabel; ?></option>
-                              <?php endforeach; ?>
-                            </select>
-                          </td>
-                        <?php endforeach; ?>
-                        <td>
-                          <button class="btn btn-sm btn-primary save-perms"<?php echo $isUserAccessViewOnly ? ' disabled' : ''; ?>>Save</button>
-                        </td>
+                    <?php if ($publicUsers): ?>
+                      <?php foreach ($publicUsers as $user): ?>
+                        <?php $userName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')); ?>
+                        <tr data-userid="<?php echo htmlspecialchars($user['userid'], ENT_QUOTES, 'UTF-8'); ?>" data-name="<?php echo htmlspecialchars($userName, ENT_QUOTES, 'UTF-8'); ?>" data-email="<?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?>">
+                          <td><?php echo htmlspecialchars($userName !== '' ? $userName : $user['userid'], ENT_QUOTES, 'UTF-8'); ?></td>
+                          <td><?php echo htmlspecialchars($user['email'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        </tr>
+                      <?php endforeach; ?>
+                    <?php else: ?>
+                      <tr class="empty-user-state">
+                        <td colspan="2" class="text-center text-muted py-3">No public users registered.</td>
                       </tr>
-                    <?php endforeach; ?>
+                    <?php endif; ?>
                   </tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>
@@ -360,8 +354,10 @@ document.addEventListener('DOMContentLoaded', function () {
       row.style.display = visible ? '' : 'none';
     });
     document.querySelectorAll('.user-access-section').forEach(function(section){
-      var visibleRow = section.querySelectorAll('tbody tr:not([style*="display: none"])');
-      section.style.display = visibleRow.length ? '' : 'none';
+      var visibleRows = section.querySelectorAll('tbody tr[data-userid]:not([style*="display: none"])');
+      var emptyState = section.querySelector('.empty-user-state');
+      if (emptyState) emptyState.style.display = term ? 'none' : '';
+      section.style.display = visibleRows.length || (emptyState && !term) ? '' : 'none';
     });
   }
 
